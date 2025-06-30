@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import sqlite3
 from scipy.stats import ttest_ind, mannwhitneyu
-import matplotlib.pyplot as plt
+import plotly.express as px
 import tempfile
 import os
 
@@ -106,27 +106,41 @@ st.dataframe(summary.style.format({
     "feedback_score_p_value": "{:.2e}"
 }))
 
-# Add bar charts
+# Interactive Bar Charts
 st.subheader("📊 Metric Comparison Between Variants")
-col1, col2, col3 = st.columns(3)
 
-with col1:
-    fig1, ax1 = plt.subplots()
-    ax1.bar(summary["variant"], summary["click_rate"], color="skyblue")
-    ax1.set_title("Click Rate")
-    ax1.set_ylabel("Proportion")
-    st.pyplot(fig1)
+fig1 = px.bar(
+    summary,
+    x="variant",
+    y="click_rate",
+    color="variant",
+    text="description",
+    title="Click Rate\nProportion of sessions with at least one click",
+    labels={"click_rate": "Proportion"},
+    hover_data=["sample_size", "click_rate_p_value"]
+)
+st.plotly_chart(fig1, use_container_width=True)
 
-with col2:
-    fig2, ax2 = plt.subplots()
-    ax2.bar(summary["variant"], summary["avg_dwell_time"], color="salmon")
-    ax2.set_title("Average Dwell Time")
-    ax2.set_ylabel("Seconds")
-    st.pyplot(fig2)
+fig2 = px.bar(
+    summary,
+    x="variant",
+    y="avg_dwell_time",
+    color="variant",
+    text="description",
+    title="Average Dwell Time\nMean time (in seconds) users spent on the page",
+    labels={"avg_dwell_time": "Seconds"},
+    hover_data=["sample_size", "dwell_time_p_value"]
+)
+st.plotly_chart(fig2, use_container_width=True)
 
-with col3:
-    fig3, ax3 = plt.subplots()
-    ax3.bar(summary["variant"], summary["feedback_positive_rate"], color="lightgreen")
-    ax3.set_title("Positive Feedback Rate")
-    ax3.set_ylabel("Proportion")
-    st.pyplot(fig3)
+fig3 = px.bar(
+    summary,
+    x="variant",
+    y="feedback_positive_rate",
+    color="variant",
+    text="description",
+    title="Positive Feedback Rate\nProportion of sessions with positive feedback score",
+    labels={"feedback_positive_rate": "Proportion"},
+    hover_data=["sample_size", "feedback_score_p_value"]
+)
+st.plotly_chart(fig3, use_container_width=True)
