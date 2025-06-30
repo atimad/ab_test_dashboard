@@ -9,12 +9,36 @@ import os
 st.set_page_config(page_title="A/B Test Dashboard", layout="wide")
 st.title("🔍 A/B Test Analysis for Search UX")
 
+st.sidebar.markdown("""
+### 📘 About This App
+This dashboard compares two variants (A and B) from an A/B test, using search-related engagement metrics.
+
+It is designed as a flexible template for experiment-driven teams working on AI-powered products, user experience optimization, or search relevance evaluation.
+
+You can configure the meaning of each variant below:
+""")
+
+variant_a_desc = st.sidebar.text_input("Variant A Description", "Control – current experience")
+variant_b_desc = st.sidebar.text_input("Variant B Description", "Test – improved LLM format")
+
 @st.cache_data
 def load_data_from_db(path):
     conn = sqlite3.connect(path)
     df = pd.read_sql_query("SELECT * FROM ab_test_logs", conn)
     conn.close()
     return df
+
+@st.cache_data
+def load_data_from_csv(uploaded_file):
+    return pd.read_csv(uploaded_file)
+
+@st.cache_data
+def load_data_from_excel(uploaded_file):
+    return pd.read_excel(uploaded_file)
+
+@st.cache_data
+def load_data_from_parquet(uploaded_file):
+    return pd.read_parquet(uploaded_file)
 
 @st.cache_data
 def analyze_ab_test(df: pd.DataFrame):
@@ -37,14 +61,27 @@ def analyze_ab_test(df: pd.DataFrame):
     summary["dwell_time_p_value"] = dwell_test.pvalue
     summary["feedback_score_p_value"] = feedback_test.pvalue
 
+    desc_map = {"A": variant_a_desc, "B": variant_b_desc}
+    summary["description"] = summary["variant"].map(desc_map)
+
     return summary
 
 # File uploader
-uploaded_file = st.sidebar.file_uploader("Upload SQLite DB", type="db")
+st.sidebar.subheader("Upload A/B Test Data")
+uploaded_db = st.sidebar.file_uploader("SQLite (.db)", type="db")
+uploaded_csv = st.sidebar.file_uploader("CSV (.csv)", type="csv")
+uploaded_excel = st.sidebar.file_uploader("Excel (.xlsx)", type="xlsx")
+uploaded_parquet = st.sidebar.file_uploader("Parquet (.parquet)", type="parquet")
 
-if uploaded_file is not None:
+if uploaded_csv is not None:
+    df = load_data_from_csv(uploaded_csv)
+elif uploaded_excel is not None:
+    df = load_data_from_excel(uploaded_excel)
+elif uploaded_parquet is not None:
+    df = load_data_from_parquet(uploaded_parquet)
+elif uploaded_db is not None:
     with tempfile.NamedTemporaryFile(delete=False, suffix=".db") as tmp:
-        tmp.write(uploaded_file.read())
+        tmp.write(uploaded_db.read())
         tmp_path = tmp.name
     df = load_data_from_db(tmp_path)
     os.unlink(tmp_path)
