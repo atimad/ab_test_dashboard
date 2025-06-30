@@ -1,4 +1,6 @@
 streamlit
 pandas
 scipy
-matplotlib
+plotly
+openpyxl
+pyarrow
