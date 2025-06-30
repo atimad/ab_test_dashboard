@@ -1,0 +1,39 @@
+# Ignore virtual environments
+venv/
+ENV/
+env/
+.venv/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Jupyter and IPython
+.ipynb_checkpoints/
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+desktop.ini
+
+# Streamlit logs and cache
+.streamlit/
+
+# VS Code and other IDE configs
+.vscode/
+.idea/
+
+# Temporary files
+*.log
+*.tmp
+
+# SQLite test files
+*.db
+
+# Package manager output
+*.egg-info/
+dist/
+build/
